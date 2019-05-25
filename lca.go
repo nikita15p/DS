@@ -1,71 +1,53 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
-type Node struct{
+type Node struct {
 	value int
-	left *Node
+	left  *Node
 	right *Node
 }
 
-func CreateNode(val int)  *Node{
-
+func CreateNode(val int) *Node {
 	node := new(Node)
 	node.value = val
-	node.left =nil
-	node.right=nil
+	node.left = nil
+	node.right = nil
 	return node
 }
 
-func LCA(root *Node,val1 int, val2 int)int{
-
-	templ,tempr := root,root
-//fmt.Println(temp.right.value)
-	ch := make(chan int)
-
-	go func() {
-
-		for {
-			if templ.left != nil {
-				if templ.left.value == val1 || templ.left.value == val2 {
-					break
-				}
-				templ = templ.left
-
-			}
-		}
-		ch<-templ.value
-
-	}()
-
-	go func(){
-		for {
-			if tempr.right != nil {
-				if tempr.right.value == val1 || tempr.right.value == val2 {
-					break
-				}
-				tempr = tempr.right
-			}else{
-				tempr = root
-			}
-
-		}
-		ch<-tempr.value
-	}()
-
-	return <-ch
+func LCA(root *Node, val1 int, val2 int) *Node {
+	if root == nil {
+		return nil
+	}
+	if root.value == val1 || root.value == val2 {
+		return root
+	}
+	root.left = LCA(root.left, val1, val2)
+	root.right = LCA(root.right, val1, val2)
+	if root.left != nil && root.right != nil {
+		return root
+	}
+	if root.left == nil && root.right == nil {
+		return nil
+	}
+	if root.left != nil {
+		return root.left
+	} else {
+		return root.right
+	}
 }
 
-func main(){
-
+func main() {
 	root := CreateNode(1)
 	root.left = CreateNode(2)
 	root.right = CreateNode(3)
 	root.left.left = CreateNode(4)
 	root.left.right = CreateNode(5)
 	root.right.left = CreateNode(6)
-	root.right.right =  CreateNode(7)
-
-	fmt.Println(LCA(root,2,3))
-
+	root.right.right = CreateNode(7)
+	root.right.right.right = CreateNode(8)
+	fmt.Println(LCA(root, 5, 8).value)
 }
